@@ -32,9 +32,11 @@ After refreshing, update `.github/skills/agentic-workflows/.upstream-version` to
 
 The repository's installed CLI or generated workflow action versions can differ. Run `gh aw upgrade` separately when intentionally upgrading and recompiling the workflows themselves.
 
-### Repo-owned skill
+### Repo-owned skills
 
 `.github/skills/non-coder-agentic-workflow-builder/` is maintained in this repository. Edit the canonical files there; the discovery links expose changes to other tools automatically.
+
+`.github/skills/org-work-sensing/` is maintained in this repository. Use it for current-state assessment, readiness gap analysis, and work-signal review before recommending agentic workflow setup.
 
 ## Validation
 
