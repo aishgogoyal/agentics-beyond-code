@@ -219,3 +219,124 @@ missing approvals, staleness, blockers, and compliance review status.
 Create a GitHub discussion with the report. Structure it as follows:
 
 #### Report Structure
+
+```
+### 📊 Pipeline Summary
+
+One-paragraph executive summary of overall launch pipeline health.
+How many launches total, how many on track, how many at risk.
+
+| Launch | Phase | Target Date | Completeness | Risk | DRI |
+|--------|-------|-------------|-------------|------|-----|
+| #N Title | Beta | 2026-06-01 | 75% (15/20) | 🟡 | @pm |
+
+### 🔴 High Risk Launches
+
+For each high-risk launch, a detailed breakdown:
+- Why it's high risk (specific signals)
+- Blockers
+- Missing approvals
+- Recommended actions
+
+### 🟠 At Risk Launches
+
+Same format, less urgent.
+
+### 🟡 Needs Attention
+
+Brief notes on what needs attention.
+
+### 🟢 On Track
+
+Brief confirmation, any notable progress.
+
+<details>
+<summary>📋 Domain Sign-off Status</summary>
+
+Table showing which launches need which domain approvals, and which
+have been granted. Helps downstream teams see what needs their input.
+
+| Launch | Security | Privacy | Accessibility | Responsible AI | Legal | Docs | Support |
+|--------|----------|---------|---------------|----------------|-------|------|---------|
+| #N Title | ✅ | ⏳ needs | ➖ N/A | ❌ missing | ✅ | ⏳ needs | ✅ |
+
+</details>
+
+<details>
+<summary>⏰ Staleness Report</summary>
+
+List of stale sub-issues across all launches, grouped by launch.
+Include last activity date and assignee.
+
+</details>
+
+<details>
+<summary>📈 Week-over-Week Changes</summary>
+
+If a previous launch readiness report exists (closed issue with same
+title prefix), compare key metrics:
+- Launches added/removed
+- Completeness changes
+- Risk level changes
+- Newly stale items
+
+</details>
+```
+
+## Safe output calls
+
+Write body content to a temp file, then call with explicit flags (stdin redirection can silently fail in this environment):
+
+```bash
+cat > /tmp/gh-aw/agent/body.md << 'BODY'
+...content...
+BODY
+safeoutputs create_discussion --title "title" --body "$(cat /tmp/gh-aw/agent/body.md)"
+# or: safeoutputs create_issue / add_comment / create_pull_request — same pattern
+```
+
+Configured title prefixes are added automatically — omit them from `--title`. If a call fails, immediately call `safeoutputs noop --message "reason"` and stop — never ask for input.
+
+### Slack report-back
+
+After calling `create_discussion`, check if a Slack channel is configured:
+
+```bash
+SLACK_CHANNEL=$(cat /tmp/gh-aw/agent/slack-channel.txt 2>/dev/null || echo "")
+```
+
+If `SLACK_CHANNEL` is non-empty, call `slack_post_message` with a concise
+Slack-formatted summary. Use Slack mrkdwn — not GitHub markdown:
+
+- Bold: `*text*` (not `**text**`)
+- Bullet: `•` (not `*` or `-`)
+- Links: `<url|text>` (not `[text](url)`)
+- No markdown headings — use bold inline labels instead
+- No horizontal rules (`---`)
+- No pipe tables — use bullets instead
+
+Format the message as one bullet per launch, with the most urgent launches first:
+
+```
+*📊 Launch Pipeline — [date]*
+
+• 🔴 *[Launch title](issue url)* — Phase · due date · completeness · DRI · key blocker
+• 🟡 *[Launch title](issue url)* — Phase · due date · completeness · DRI
+• 🟢 *[Launch title](issue url)* — Phase · due date · completeness
+
+N launches total · X on track · Y at risk
+```
+
+Use the risk emoji (🔴 🟠 🟡 🟢) at the start of each bullet.
+Omit DRI if unassigned. Keep each bullet to one line.
+The `github_source_url` must be the discussion URL returned by `create_discussion`.
+
+## Guidelines
+
+- Be factual and specific. Cite issue numbers.
+- Do not speculate on reasons for delays — report observable signals.
+- Use the risk levels defined in the policy, not your own judgment.
+- Keep the executive summary to 2-3 sentences max.
+- Use tables for scannable data; use prose only for risk explanations.
+- Escape all @mentions and issue references to avoid noisy notifications.
+- If no launches are found, create a brief report noting this.
