@@ -31,11 +31,10 @@ network:
 
 steps:
   - name: Fetch launch data
-    id: launch-data
     env:
-      JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
-      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+      JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      JIRA_USER_TOKEN: ${{ secrets.JIRA_USER_TOKEN }}
+      JIRA_INSTANCE_URL: ${{ secrets.JIRA_INSTANCE_URL }}
     run: |
       chmod +x .github/scripts/fetch-launch-data-jira.sh
       ./.github/scripts/fetch-launch-data-jira.sh launch-data-summary.json

@@ -12,7 +12,7 @@
 #   - state is always "OPEN" (not distinguishing Roll Out from other stages yet)
 #   - riskLevel is a placeholder ("Medium") since Jira has no native risk field
 #
-# Requires env vars: JIRA_EMAIL, JIRA_API_TOKEN, JIRA_BASE_URL
+# Requires env vars: JIRA_USER_EMAIL, JIRA_USER_TOKEN, JIRA_INSTANCE_URL
 # Usage: ./fetch-launch-data-jira.sh <output-file>
 #   e.g. ./fetch-launch-data-jira.sh launch-data-summary.json
 
@@ -20,9 +20,9 @@ set -euo pipefail
 
 OUTPUT_FILE="${1:-launch-data-summary.json}"
 
-: "${JIRA_EMAIL:?JIRA_EMAIL is required}"
-: "${JIRA_API_TOKEN:?JIRA_API_TOKEN is required}"
-: "${JIRA_BASE_URL:?JIRA_BASE_URL is required}"
+: "${JIRA_USER_EMAIL:?JIRA_USER_EMAIL is required}"
+: "${JIRA_USER_TOKEN:?JIRA_USER_TOKEN is required}"
+: "${JIRA_INSTANCE_URL:?JIRA_INSTANCE_URL is required}"
 
 # Custom field IDs discovered from Lirvana Labs' Jira instance:
 #   customfield_10133 = Goal (multi-select)
@@ -56,14 +56,14 @@ FETCHED=0
 
 while true; do
   if [ -z "$NEXT_TOKEN" ]; then
-    RESPONSE=$(curl -sS -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
-      -G "${JIRA_BASE_URL}/rest/api/3/search/jql" \
+    RESPONSE=$(curl -sS -u "${JIRA_USER_EMAIL}:${JIRA_USER_TOKEN}" \
+      -G "${JIRA_INSTANCE_URL}/rest/api/3/search/jql" \
       --data-urlencode "jql=${JQL}" \
       --data-urlencode "fields=${FIELDS}" \
       --data-urlencode "maxResults=${PAGE_SIZE}")
   else
-    RESPONSE=$(curl -sS -u "${JIRA_EMAIL}:${JIRA_API_TOKEN}" \
-      -G "${JIRA_BASE_URL}/rest/api/3/search/jql" \
+    RESPONSE=$(curl -sS -u "${JIRA_USER_EMAIL}:${JIRA_USER_TOKEN}" \
+      -G "${JIRA_INSTANCE_URL}/rest/api/3/search/jql" \
       --data-urlencode "jql=${JQL}" \
       --data-urlencode "fields=${FIELDS}" \
       --data-urlencode "maxResults=${PAGE_SIZE}" \
@@ -95,7 +95,7 @@ echo "$ALL_ISSUES" > "$TMP_RAW"
 echo "Reshaping into launch-data-summary.json schema..." >&2
 
 jq \
-  --arg baseUrl "$JIRA_BASE_URL" \
+  --arg baseUrl "$JIRA_INSTANCE_URL" \
   --arg datesField "$DATES_FIELD" \
   --arg ideaTypeField "$IDEA_TYPE_FIELD" \
   --arg engineersField "$ENGINEERS_FIELD" \
