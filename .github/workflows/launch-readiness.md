@@ -7,6 +7,10 @@ description: |
 
 engine:
   id: claude
+  env:
+    ANTHROPIC_BASE_URL: "https://bedrock-mantle.us-east-1.api.aws"
+    ANTHROPIC_API_KEY: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
+
 
 on:
 #  schedule: (disabled — re-enable to run on a schedule) weekly on monday around 8:30am utc-7
@@ -23,7 +27,7 @@ timeout-minutes: 20
 max-ai-credits: 2000
 
 network:
-  allowed: [defaults, github]
+  allowed: [defaults, github, bedrock-mantle.us-east-1.api.aws]
 
 steps:
   - name: Fetch launch data
