@@ -6,11 +6,8 @@ description: |
   Reports per-launch status and an overall pipeline summary.
 
 engine:
-  id: claude
-  env:
-    ANTHROPIC_BASE_URL: "https://bedrock-mantle.us-east-1.api.aws"
-    ANTHROPIC_API_KEY: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
-
+  id: codex
+  model: gpt-5-mini
 
 on:
 #  schedule: (disabled — re-enable to run on a schedule) weekly on monday around 8:30am utc-7
@@ -26,13 +23,8 @@ strict: true
 timeout-minutes: 20
 max-ai-credits: 2000
 
-models:
-  default-ai-credits-pricing:
-    input: 0.000001
-    output: 0.000001
-
 network:
-  allowed: [defaults, github, bedrock-mantle.us-east-1.api.aws]
+  allowed: [defaults, github]
 
 steps:
   - name: Fetch launch data
