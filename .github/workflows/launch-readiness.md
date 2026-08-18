@@ -46,7 +46,7 @@ steps:
     run: |
       mkdir -p /tmp/gh-aw/agent
       echo "$SLACK_ARTIFACT_CHANNEL_MAP" \
-        | node -e "const m=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')||'{}'); process.stdout.write(m['Launch Readiness Report']||'')" \
+        | node -e "const m=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8').trim()||'{}'); process.stdout.write(m['Launch Readiness Report']||'')" \
         > /tmp/gh-aw/agent/slack-channel.txt
 
 imports:
