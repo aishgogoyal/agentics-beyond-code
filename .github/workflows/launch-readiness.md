@@ -26,6 +26,11 @@ strict: true
 timeout-minutes: 20
 max-ai-credits: 2000
 
+models:
+  default-ai-credits-pricing:
+    input: 0.000001
+    output: 0.000001
+
 network:
   allowed: [defaults, github, bedrock-mantle.us-east-1.api.aws]
 
